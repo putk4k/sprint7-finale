@@ -75,7 +75,7 @@ func TestCafeCount(t *testing.T) {
 		cafes := strings.FieldsFunc(responce.Body.String(), func(r rune) bool {
 			return r == ','
 		})
-		assert.Equal(t, v.want, len(cafes))
+		assert.Len(t, cafes, v.want)
 
 	}
 }
@@ -86,10 +86,11 @@ func TestCafeSearch(t *testing.T) {
 	requests := []struct {
 		search    string
 		wantCount int
+		wantCafes string
 	}{
-		{"search=фасоль", 0},
-		{"search=кофе", 2},
-		{"search=вилка", 1},
+		{"search=фасоль", 0, ""},
+		{"search=кофе", 2, "Мир кофе,Кофе и завтраки"},
+		{"search=вилка", 1, "Ложка и вилка"},
 	}
 
 	for _, v := range requests {
@@ -101,6 +102,7 @@ func TestCafeSearch(t *testing.T) {
 		cafes := strings.FieldsFunc(responce.Body.String(), func(r rune) bool {
 			return r == ','
 		})
-		assert.Equal(t, v.wantCount, len(cafes))
+		assert.Len(t, cafes, v.wantCount)
+		assert.Equal(t, v.wantCafes, responce.Body.String())
 	}
 }
