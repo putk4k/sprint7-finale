@@ -86,16 +86,15 @@ func TestCafeSearch(t *testing.T) {
 	requests := []struct {
 		search    string
 		wantCount int
-		wantCafes string
 	}{
-		{"search=фасоль", 0, ""},
-		{"search=кофе", 2, "Мир кофе,Кофе и завтраки"},
-		{"search=вилка", 1, "Ложка и вилка"},
+		{"фасоль", 0},
+		{"кофе", 2},
+		{"вилка", 1},
 	}
 
 	for _, v := range requests {
 		responce := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/cafe?city=moscow&"+v.search, nil)
+		req := httptest.NewRequest("GET", "/cafe?city=moscow&search="+v.search, nil)
 
 		handler.ServeHTTP(responce, req)
 		require.Equal(t, http.StatusOK, responce.Code)
@@ -103,6 +102,8 @@ func TestCafeSearch(t *testing.T) {
 			return r == ','
 		})
 		assert.Len(t, cafes, v.wantCount)
-		assert.Equal(t, v.wantCafes, responce.Body.String())
+		for _, cafe := range cafes {
+			assert.Contains(t, strings.ToLower(cafe), strings.ToLower(v.search))
+		}
 	}
 }
